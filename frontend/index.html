@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formularz</title>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        async function submitForm(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+
+            await fetch('/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            loadTableData();
+        }
+
+        async function loadTableData() {
+            const response = await fetch('/submit');
+            const entries = await response.json();
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+
+            entries.forEach(entry => {
+                const row = `<tr>
+                    <td>${entry.name}</td>
+                    <td>${entry.last_name}</td>
+                    <td>${entry.os}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+        window.onload = loadTableData;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Formularz</h1>
+        <form onsubmit="submitForm(event)">
+            <input type="text" name="name" placeholder="Imię" required>
+            <input type="text" name="last_name" placeholder="Nazwisko" required>
+            <input type="text" name="os" placeholder="System operacyjny" required>
+            <button type="submit">Wyślij</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>Imię</th>
+                    <th>Nazwisko</th>
+                    <th>System operacyjny</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
+    </div>
+</body>
+</html>
